@@ -9,6 +9,7 @@ public interface IDatabase
 {
     Task<IList<UserOutput>> GetAllAsync();
     Task<UserOutput> GetByIdAsync(Guid id);
+    Task CreateAsync(UserInput input);
 }
 
 public class Database : IDatabase
@@ -22,15 +23,14 @@ public class Database : IDatabase
         DatabaseSeed.Execute(Db);
     }
 
+    public async Task CreateAsync(UserInput input) 
+        => await Task.Run(() => Db.Add(_mapper.Map<UserModel>(input)));
+
     public async Task<IList<UserOutput>> GetAllAsync()
-        => await Task.Run(() =>
-        {
-            return _mapper.ProjectTo<UserOutput>(Db.AsQueryable()).ToList();
-        });
+        => await Task.Run(() => _mapper.ProjectTo<UserOutput>(Db.AsQueryable()).ToList());
 
     public async Task<UserOutput> GetByIdAsync(Guid id)
         => await Task.Run(() => _mapper.Map<UserOutput>(Db.FirstOrDefault(w => w.Id == id)));
-
 }
 
 public class DatabaseSeed
@@ -45,6 +45,7 @@ public class DatabaseSeed
             {
                 Id = Guid.NewGuid(),
                 Name = "User " + Guid.NewGuid(),
+                Age = new Random().Next(1, 25),
                 Infos = new List<UserInfoModel>()
                 {
                     new UserInfoModel()
@@ -63,6 +64,7 @@ public class DatabaseSeed
             {
                 Id = Guid.NewGuid(),
                 Name = "User " + Guid.NewGuid(),
+                 Age = new Random().Next(1, 25),
                 Infos = new List<UserInfoModel>()
                 {
                     new UserInfoModel()

@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using src.Controllers.Common;
 using src.Database;
+using src.DTO;
 
 namespace DotnetAPIRestDesign.Controllers;
 
@@ -18,4 +19,12 @@ public class UserController : BaseController
 
     [HttpGet("{id:guid}")]
     public async Task<IActionResult> GetByIdAsync(Guid id) => Ok(await _db.GetByIdAsync(id));
+
+    [HttpPost]
+    public async Task<IActionResult> CreateAsync([FromBody] UserInput input)
+    {
+        await _db.CreateAsync(input);
+
+        return NoContent();
+    }
 }

@@ -11,6 +11,7 @@ public interface IDatabase
     Task CreateAsync(UserInput input);
     Task UpdateAsync(Guid id, UserInput input);
     Task UpdateAgeAsync(Guid id, int age);
+    Task DeleteAsync(Guid id);
 }
 
 public class Database : IDatabase
@@ -24,12 +25,23 @@ public class Database : IDatabase
         DatabaseSeed.Execute(Db);
     }
 
-    public async Task CreateAsync(UserInput input) 
-        => await Task.Run(() => {
+    public async Task CreateAsync(UserInput input)
+        => await Task.Run(() =>
+        {
             var user = _mapper.Map<UserModel>(input);
             user.Id = Guid.NewGuid();
             Db.Add(user);
         });
+
+    public async Task DeleteAsync(Guid id)
+    {
+        await Task.Run(() =>
+        {
+            int index = Db.FindIndex(user => user.Id == id);
+            if(index == -1) return;
+            Db.RemoveAt(index);
+        });
+    }
 
     public async Task<IList<UserOutput>> GetAllAsync()
         => await Task.Run(() => _mapper.ProjectTo<UserOutput>(Db.AsQueryable()).ToList());
@@ -39,7 +51,8 @@ public class Database : IDatabase
 
     public async Task UpdateAgeAsync(Guid id, int age)
     {
-        await Task.Run(() => {
+        await Task.Run(() =>
+        {
             int index = Db.FindIndex(user => user.Id == id);
             UserModel user = Db[index];
             user.Age = age;
@@ -49,7 +62,8 @@ public class Database : IDatabase
 
     public async Task UpdateAsync(Guid id, UserInput input)
     {
-        await Task.Run(() => {
+        await Task.Run(() =>
+        {
             int index = Db.FindIndex(user => user.Id == id);
             var userUpdated = _mapper.Map<UserModel>(input);
             userUpdated.Id = id;

@@ -40,4 +40,11 @@ public class UserController : BaseController
         await _db.UpdateAgeAsync(id, age);
         return Ok();
     }
+
+    [HttpDelete("{id:guid}")]
+    public async Task<IActionResult> DeleteAsync(Guid id)
+    {
+        await _db.DeleteAsync(id);
+        return Ok();
+    }
 }

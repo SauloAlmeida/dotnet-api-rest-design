@@ -1,6 +1,7 @@
 using AutoMapper;
 using src.DTO;
 using src.Model;
+using System.Linq;
 
 namespace src.Database;
 
@@ -12,6 +13,7 @@ public interface IDatabase
     Task UpdateAsync(Guid id, UserInput input);
     Task UpdateAgeAsync(Guid id, int age);
     Task DeleteAsync(Guid id);
+    Task<List<UserInfoOutput>> GetUsersInfoByIdAsync(Guid id);
 }
 
 public class Database : IDatabase
@@ -38,7 +40,7 @@ public class Database : IDatabase
         await Task.Run(() =>
         {
             int index = Db.FindIndex(user => user.Id == id);
-            if(index == -1) return;
+            if (index == -1) return;
             Db.RemoveAt(index);
         });
     }
@@ -48,6 +50,9 @@ public class Database : IDatabase
 
     public async Task<UserOutput> GetByIdAsync(Guid id)
         => await Task.Run(() => _mapper.Map<UserOutput>(Db.FirstOrDefault(w => w.Id == id)));
+
+    public async Task<List<UserInfoOutput>> GetUsersInfoByIdAsync(Guid id)
+        => await Task.Run(() => _mapper.ProjectTo<UserInfoOutput>(Db.First(user => user.Id == id).Infos.AsQueryable()).ToList());
 
     public async Task UpdateAgeAsync(Guid id, int age)
     {

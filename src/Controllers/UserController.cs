@@ -47,4 +47,7 @@ public class UserController : BaseController
         await _db.DeleteAsync(id);
         return Ok();
     }
+
+    [HttpGet("{id:guid}/infos")]
+    public async Task<IActionResult> GetUsersInfoByIdAsync(Guid id) => Ok(await _db.GetUsersInfoByIdAsync(id));
 }

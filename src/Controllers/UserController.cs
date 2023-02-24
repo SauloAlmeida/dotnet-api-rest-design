@@ -33,4 +33,11 @@ public class UserController : BaseController
         await _db.UpdateAsync(id, input);
         return Ok();
     }
+
+    [HttpPatch("{id:guid}")]
+    public async Task<IActionResult> UpdateAgeAsync(Guid id, [FromBody] int age)
+    {
+        await _db.UpdateAgeAsync(id, age);
+        return Ok();
+    }
 }

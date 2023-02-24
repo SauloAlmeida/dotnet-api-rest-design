@@ -1,5 +1,4 @@
 using AutoMapper;
-using AutoMapper.QueryableExtensions;
 using src.DTO;
 using src.Model;
 
@@ -11,6 +10,7 @@ public interface IDatabase
     Task<UserOutput> GetByIdAsync(Guid id);
     Task CreateAsync(UserInput input);
     Task UpdateAsync(Guid id, UserInput input);
+    Task UpdateAgeAsync(Guid id, int age);
 }
 
 public class Database : IDatabase
@@ -36,6 +36,16 @@ public class Database : IDatabase
 
     public async Task<UserOutput> GetByIdAsync(Guid id)
         => await Task.Run(() => _mapper.Map<UserOutput>(Db.FirstOrDefault(w => w.Id == id)));
+
+    public async Task UpdateAgeAsync(Guid id, int age)
+    {
+        await Task.Run(() => {
+            int index = Db.FindIndex(user => user.Id == id);
+            UserModel user = Db[index];
+            user.Age = age;
+            Db[index] = user;
+        });
+    }
 
     public async Task UpdateAsync(Guid id, UserInput input)
     {

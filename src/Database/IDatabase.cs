@@ -10,6 +10,7 @@ public interface IDatabase
     Task<IList<UserOutput>> GetAllAsync();
     Task<UserOutput> GetByIdAsync(Guid id);
     Task CreateAsync(UserInput input);
+    Task UpdateAsync(Guid id, UserInput input);
 }
 
 public class Database : IDatabase
@@ -24,13 +25,27 @@ public class Database : IDatabase
     }
 
     public async Task CreateAsync(UserInput input) 
-        => await Task.Run(() => Db.Add(_mapper.Map<UserModel>(input)));
+        => await Task.Run(() => {
+            var user = _mapper.Map<UserModel>(input);
+            user.Id = Guid.NewGuid();
+            Db.Add(user);
+        });
 
     public async Task<IList<UserOutput>> GetAllAsync()
         => await Task.Run(() => _mapper.ProjectTo<UserOutput>(Db.AsQueryable()).ToList());
 
     public async Task<UserOutput> GetByIdAsync(Guid id)
         => await Task.Run(() => _mapper.Map<UserOutput>(Db.FirstOrDefault(w => w.Id == id)));
+
+    public async Task UpdateAsync(Guid id, UserInput input)
+    {
+        await Task.Run(() => {
+            int index = Db.FindIndex(user => user.Id == id);
+            var userUpdated = _mapper.Map<UserModel>(input);
+            userUpdated.Id = id;
+            Db[index] = userUpdated;
+        });
+    }
 }
 
 public class DatabaseSeed
